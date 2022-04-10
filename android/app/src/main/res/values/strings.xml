@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+<<<<<<< HEAD
     <string name="app_name">SnowysCafe</string>
     <string name="title_activity_main">SnowysCafe</string>
+=======
+    <string name="app_name">SnowysCafe</string>
+    <string name="title_activity_main">SnowysCafe</string>
+>>>>>>> dfd06b15ec530674b5c4445eee523ac82d0fd754
     <string name="package_name">io.ionic.demo.pg.cap.ng</string>
     <string name="custom_url_scheme">io.ionic.demo.pg.cap.ng</string>
 </resources>
