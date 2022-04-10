@@ -34,7 +34,6 @@ export class CartPage {
     
     setTimeout(() => {
       this.cart.resetCart();
-      this.router.navigate(['/menu']);
     }, 2000);
 
   }
