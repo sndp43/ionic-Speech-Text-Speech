@@ -14,7 +14,7 @@
 
 <div class="ion-padding wrapper">
 
-  <ion-searchbar></ion-searchbar>
+  <!-- <ion-searchbar></ion-searchbar> -->
 
   <ion-grid class="ion-no-padding">
     <ion-row class="ion-align-items-baseline">
@@ -91,7 +91,7 @@
           <ion-col size="12">
             <ion-slides [options]="options">
 
-              <ion-slide *ngFor='let product of products'>
+              <ion-slide *ngFor='let product of recProducts'>
                 <ion-card class="card">
                   <ion-card-content class="ion-text-left">
 
@@ -99,7 +99,7 @@
                       <ion-img [src]="product?.imgurl"></ion-img>
                     </div>
 
-                    <ion-card-title class="title">{{ product?.id }} {{ product?.name }}</ion-card-title>
+                    <ion-card-title class="title">{{ product?.name }}</ion-card-title>
                     <ion-card-subtitle>{{ product?.category }}</ion-card-subtitle>
                     <ion-card-subtitle>
                       <ion-icon name="star"></ion-icon>

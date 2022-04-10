@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
@@ -13,6 +14,7 @@ import { TextToSpeechAdvanced } from '@awesome-cordova-plugins/text-to-speech-ad
   declarations: [AppComponent],
   entryComponents: [],
   imports: [CommonModule,
+    HttpClientModule,
     FormsModule,
     BrowserModule, 
     IonicModule.forRoot(), 

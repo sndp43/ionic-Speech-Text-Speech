@@ -1,12 +1,16 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { UtilityService } from '../utility/utility.service';
+import { map, filter, tap } from 'rxjs/operators';
+import { Menu } from './menu.model';
+import { BehaviorSubject, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductsService {
-  
+  private _menus = new BehaviorSubject<Menu[]>([]);
   brands: any = [];
   sizes: any = [];
   
@@ -54,73 +58,6 @@ export class ProductsService {
     }
   ];
 
-  products = [
-    {
-      id : 1,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/ttc5rd0xu3uqqefffmlb',
-      name: '7" Regular Margherita Pizza',
-      ingredients:"Basil, Tomato Slices And Cheese.",
-      category: 'Veg',
-      price: 300,
-      totalStock: 10,
-      keywords:['Regular Margherita Pizza','7 inch Regular Margherita Pizza','7" Regular Margherita Pizza','1','Number one']
-    }, {
-      id : 2,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/beagcvher8e8nptzsyqs',
-      name: '10" Medium Margherita Pizza',
-      ingredients:"Basil, Tomato Slices And Cheese.",
-      category: 'Veg',
-      price: 400,
-      totalStock: 10,
-      keywords:['Medium Margherita Pizza','10 inch Medium Margherita Pizza','10" Medium Margherita Pizza']
-    }, {
-      id : 3,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/t3b6gmy29riautybdd3e',
-      name: '7" Regular Vegetariana Pizza',
-      ingredients:"Garlic, American Corn, Capsicum, Tomatoes And Oregano.",
-      category: 'Veg',
-      price: 350,
-      totalStock: 10,
-      keywords:['Regular Vegetariana Pizza','7 inch Regular Vegetariana Pizza','7" Regular Vegetariana Pizza']
-    }, {
-      id : 4,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/beagcvher8e8nptzsyqs',
-      name: '10" Medium Vegetariana Pizza',
-      ingredients:"Garlic, American Corn, Capsicum, Tomatoes And Oregano.",
-      category: 'Veg',
-      price: 450,
-      totalStock: 10,
-      keywords:['Medium Vegetariana Pizza','10 inch Medium Vegetariana Pizza','10" Medium Vegetariana Pizza']
-    },{
-      id : 5,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/zw2qfb0tof6vhznfv7wy',
-      name: '7" Regular Hot Chicken Pizza',
-      ingredients:"Cheese And Hot Chicken.",
-      category: 'Non Veg',
-      price: 500,
-      totalStock: 10,
-      keywords:['Regular Hot Chicken Pizza','7 inch Regular Hot Chicken Pizza','7" Regular Hot Chicken Pizza']
-    },{
-      id : 6,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/ldq1c0cfuijhvd4oskfn',
-      name: '7" Regular Smoke Chicken Pizza',
-      ingredients:"Cheese And Grilled Chicken.",
-      category: 'Non Veg',
-      price: 550,
-      totalStock: 10,
-      keywords:['Regular Smoke Chicken Pizza','7 inch Regular Smoke Chicken Pizza','7" Regular Smoke Chicken Pizza']
-    },{
-      id : 7,
-      imgurl: 'https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/obmqnjljzey9vwcxfcfm',
-      name: '7" Regular Plain Bbq Chicken Pizza',
-      ingredients:"Cheese And Plain Bbq Chicken.",
-      category: 'Non Veg',
-      price: 600,
-      totalStock: 10,
-      keywords:['Regular Plain Bbq Chicken Pizza','7 inch Regular Plain Bbq Chicken Pizza','7" Regular Plain Bbq Chicken Pizza']
-    }
-  ];
-
   categories : any = [
     {
       category : 'Veg'
@@ -132,8 +69,42 @@ export class ProductsService {
   constructor(
     private modalCtrl: ModalController,
     private utility: UtilityService,
+    private http:HttpClient
   ) { 
     
+  }
+  get menus() {
+    return this._menus.asObservable();
+  }
+  getMenu(){
+    return this.http.get('https://showyscafe-default-rtdb.asia-southeast1.firebasedatabase.app/menus.json')
+    .pipe(
+      map(resData => { 
+        const menus = [];
+        for (const key in resData) {
+          if (resData.hasOwnProperty(key)) {
+            menus.push(
+              new Menu(
+                key,
+                resData[key].category,
+                resData[key].imgurl,
+                resData[key].ingredients,
+                resData[key].keywords,
+                resData[key].name,
+                resData[key].price,
+                resData[key].rec,
+                resData[key].totalStock
+              )
+            );
+          }
+        }
+         return menus;
+        // return [];
+      }),
+      tap(menu => {
+        this._menus.next(menu);
+      })
+    );
   }
 
   searchProducts ( term: string, sort: string = '' ) {
@@ -356,4 +327,15 @@ interface ListBy {
   banner: boolean,
   nav: boolean,
   details: boolean
+}
+
+interface MenuData {
+   category: string,
+   imgurl: string,
+   ingredients:string,
+   keywords: any,
+   name: string,
+   price: number,
+   rec:number,
+   totalStock: number
 }

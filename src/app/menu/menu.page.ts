@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonRouterOutlet, ModalController } from '@ionic/angular';
 import { NavController,Platform } from '@ionic/angular';
@@ -7,14 +7,18 @@ import { ChangeDetectorRef } from '@angular/core';
 import { CartService } from '../services/cart/cart.service';
 import { ProductsService } from '../services/products/products.service';
 import { AddToCartPage } from '../pages/add-to-cart/add-to-cart.page';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.page.html',
   styleUrls: ['./menu.page.scss'],
 })
-export class MenuPage {
+export class MenuPage implements OnInit,OnDestroy {
   products: any = [];
+  recProducts:any = [];
+  private productsSub: Subscription;
+
   options = {
     centeredSlides: true,
     slidesPerView: 1,
@@ -36,24 +40,22 @@ export class MenuPage {
     public routerOutlet: IonRouterOutlet,
     public modalCtrl: ModalController,
     public cart: CartService,
-    private router: Router) {
-      this.products = this.productService.products;
-      // this.matches = ['regular hot Chicken pizza','regular hot Chicken pizzaadv'];
-      // let filteredMatches = this.matches.map((match)=>{
-      //   return match.toLowerCase();
-      // })
-      // this.matches = filteredMatches;
-      // let result = this.findTheProductByResults();
-      // if(result.id!=null){
-      //   this.addToCartModal(this.products[+result.id-1],true);
-      // }
-      // console.log(result.id);
-      // console.log(result);
-     }
+    private router: Router) {}
 
   ionViewDidEnter(){
     this.getPermission();
   }
+
+  ngOnInit() {
+    this.productsSub = this.productService.getMenu().subscribe(menus => {
+      console.log(menus);
+      this.products = menus;
+      this.recProducts = this.products.filter(prod=>{
+        return prod.rec == 1;
+      });
+    });
+  }
+
 
   async addToCartModal(item,voiceStatus=false) {
     let isAdded = this.cart.isAddedToCart(item.id);
@@ -78,7 +80,6 @@ export class MenuPage {
     } else {
       this.router.navigate(['/tabs/tab2']);
     }
-
   }
   /////////////Speech Rec code start//////////////
   getPermission() {
@@ -103,10 +104,8 @@ export class MenuPage {
       this.matches = filteredMatches;
 
       let result = this.findTheProductByResults();
-      
       if(result.id!=null){
-          //this.cart.setVoiceStatus(true);
-          this.addToCartModal(this.products[+result.id-1],true);
+          this.addToCartModal(result,true);
           this.cd.detectChanges();
       }
 
@@ -115,13 +114,28 @@ export class MenuPage {
   }
 
   findTheProductByResults(){
-    let result = this.products.find((product)=>{
-      return product.keywords.find((keyword)=>{
-         //alert(keyword.toLowerCase());
-         return this.matches.includes(keyword.toLowerCase());
-      })
+    let result;
+    this.products.map((product)=>{
+            product.keywords.map((keyword)=>{
+               if(this.matches.includes(keyword.toLowerCase())){
+                 result = product;
+               };
+            });
     });
-    return result ? result : {id:null};
+    return result ? result: {id:null};
   }
     /////////////Speech Rec code end//////////////
+
+    findTheProductById(product){
+       const resproduct = this.products.find(prod=>{
+        return prod.id == product.id;
+      });
+      return resproduct;
+    }
+
+    ngOnDestroy() {
+      if (this.productsSub) {
+        this.productsSub.unsubscribe();
+      }
+    }
 }
